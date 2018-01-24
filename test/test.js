@@ -23,30 +23,54 @@ diffTest('4a', '4b', '4diff', {
     includeAA: false
 }, 36089);
 
+const COLOR = {
+    magenta: [255, 0, 255],
+    green: [0, 255, 0],
+    blue: [0, 0, 255],
+    yellow: [255, 128, 0],
+};
+
 diffTest('1a', '1b', '1diffb', {
     threshold: 0.05,
     includeAA: false,
-    antiAliasedColor: [0, 255, 0],
-    mismatchColor: [255, 0, 255]
+    antiAliasedColor: COLOR.green,
+    mismatchColor: COLOR.magenta
 }, 143);
 diffTest('2a', '2b', '2diffb', {
     threshold: 0.05,
     includeAA: false,
-    antiAliasedColor: [0, 255, 0],
-    mismatchColor: [255, 0, 255]
+    antiAliasedColor: COLOR.green,
+    mismatchColor: COLOR.magenta
 }, 12439);
 diffTest('3a', '3b', '3diffb', {
     threshold: 0.05,
     includeAA: false,
-    antiAliasedColor: [0, 255, 0],
-    mismatchColor: [255, 0, 255]
+    antiAliasedColor: COLOR.green,
+    mismatchColor: COLOR.magenta
 }, 212);
 diffTest('4a', '4b', '4diffb', {
     threshold: 0.05,
     includeAA: false,
-    antiAliasedColor: [0, 255, 0],
-    mismatchColor: [255, 0, 255]
+    antiAliasedColor: COLOR.green,
+    mismatchColor: COLOR.magenta
 }, 36089);
+
+diffTest('1a', '1b', '1diffb', {
+    threshold: 0.05,
+    includeAA: false,
+    antiAliasedColor: COLOR.green,
+    mismatchColor: COLOR.magenta,
+    antiAliasedColorNegative: COLOR.green,
+    mismatchColorNegative: COLOR.magenta
+}, 143);
+diffTest('1a', '1b', '1diffc', {
+    threshold: 0.05,
+    includeAA: false,
+    antiAliasedColor: COLOR.green,
+    mismatchColor: COLOR.magenta,
+    antiAliasedColorNegative: COLOR.blue,
+    mismatchColorNegative: COLOR.yellow
+}, 143);
 
 test('throws error if image sizes do not match', function (t) {
     t.throws(function () {
