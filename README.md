@@ -48,7 +48,7 @@ Implements ideas from the following papers:
 - `mismatchColor` — An array of 3 values (red, green and blue) to define the color of the mismatching pixels in the output. `[255, 0, 0]` by default (red).
 - `mismatchColorNegative` — Same as `mismatchColor` but defines color of the mismatching pixels that is brighten in `img2` than in `img1`, other mismatching pixels defined by `mismatchColor`. `null` by default.
 - `antiAliasedColor` — If `includeAA` is `false`, define the color of the anti-aliased pixels in the output. It is an array of 3 values (red, gree and blue). `[255, 255, 0]` by default (yellow).
-- `antiAliasedColorNegative: Same as `antiAliasedColor` but defines color of the anti-aliased pixels that is brighten in `img2` than in `img1`, other anti-aliased pixels defined by `antiAliasedColor`. `null` by default.
+- `antiAliasedColorNegative` — Same as `antiAliasedColor` but defines color of the anti-aliased pixels that is brighten in `img2` than in `img1`, other anti-aliased pixels defined by `antiAliasedColor`. `null` by default.
 
 Compares two images, writes the output diff and returns the number of mismatched pixels.
 
