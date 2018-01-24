@@ -69,7 +69,7 @@ diffTest('1a', '1b', '1diffc', {
     antiAliasedColor: COLOR.green,
     mismatchColor: COLOR.magenta,
     antiAliasedColorNegative: COLOR.blue,
-    mismatchColorNegative: COLOR.yellow,
+    mismatchColorNegative: COLOR.yellow
 }, 143);
 
 test('throws error if image sizes do not match', function (t) {
