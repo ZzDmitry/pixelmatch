@@ -6,7 +6,9 @@ var defaults = {
     threshold: 0.1,
     includeAA: false,
     antiAliasedColor: [255, 255, 0],
-    mismatchColor: [255, 0, 0]
+    mismatchColor: [255, 0, 0],
+    antiAliasedColorNegative: null,
+    mismatchColorNegative: null,
 };
 
 function pixelmatch(img1, img2, output, width, height, options) {
@@ -35,19 +37,42 @@ function pixelmatch(img1, img2, output, width, height, options) {
             var pos = (y * width + x) * 4;
 
             // squared YUV distance between colors at this pixel position
-            var delta = colorDelta(img1, img2, pos, pos);
+            var delta;
+            // delta sign
+            var signedDelta;
+
+            if (!options.antiAliasedColorNegative || !options.mismatchColorNegative) {
+                // does not matter delta sign, same as it is positive
+                signedDelta = 0;
+                delta = colorDelta(img1, img2, pos, pos);
+            } else {
+                signedDelta = colorDelta(img1, img2, pos, pos, false, true);
+                delta = Math.abs(signedDelta);
+            }
 
             // the color difference is above the threshold
             if (delta > maxDelta) {
                 // check it's a real rendering difference or just anti-aliasing
                 if (!options.includeAA && (antialiased(img1, x, y, width, height, img2) ||
                                    antialiased(img2, x, y, width, height, img1))) {
-                    // one of the pixels is anti-aliasing; draw as yellow and do not count as difference
-                    if (output) drawPixel(output, pos, options.antiAliasedColor[0], options.antiAliasedColor[1], options.antiAliasedColor[2]);
+                    // one of the pixels is anti-aliasing; draw as antiAliasedColor and do not count as difference
+                    if (output) {
+                        if (signedDelta < 0) {
+                            drawPixelRGB(output, pos, options.antiAliasedColorNegative || options.antiAliasedColor);
+                        } else {
+                            drawPixel(output, pos, options.antiAliasedColor[0], options.antiAliasedColor[1], options.antiAliasedColor[2]);
+                        }
+                    }
 
                 } else {
-                    // found substantial difference not caused by anti-aliasing; draw it as red
-                    if (output) drawPixel(output, pos, options.mismatchColor[0], options.mismatchColor[1], options.mismatchColor[2]);
+                    // found substantial difference not caused by anti-aliasing; draw it as mismatchColor
+                    if (output) {
+                        if (signedDelta < 0) {
+                            drawPixelRGB(output, pos, options.mismatchColorNegative || options.mismatchColor);
+                        } else {
+                            drawPixel(output, pos, options.mismatchColor[0], options.mismatchColor[1], options.mismatchColor[2]);
+                        }
+                    }
                     diff++;
                 }
 
@@ -126,7 +151,7 @@ function antialiased(img, x1, y1, width, height, img2) {
 // calculate color difference according to the paper "Measuring perceived color difference
 // using YIQ NTSC transmission color space in mobile applications" by Y. Kotsarenko and F. Ramos
 
-function colorDelta(img1, img2, k, m, yOnly) {
+function colorDelta(img1, img2, k, m, yOnly, isSigned) {
     var a1 = img1[k + 3] / 255,
         a2 = img2[m + 3] / 255,
 
@@ -145,7 +170,13 @@ function colorDelta(img1, img2, k, m, yOnly) {
     var i = rgb2i(r1, g1, b1) - rgb2i(r2, g2, b2),
         q = rgb2q(r1, g1, b1) - rgb2q(r2, g2, b2);
 
-    return 0.5053 * y * y + 0.299 * i * i + 0.1957 * q * q;
+    const diff = 0.5053 * y * y + 0.299 * i * i + 0.1957 * q * q;
+
+    if (isSigned) {
+        return y < 0 ? -diff : diff;
+    }
+
+    return diff;
 }
 
 function rgb2y(r, g, b) { return r * 0.29889531 + g * 0.58662247 + b * 0.11448223; }
@@ -162,6 +193,10 @@ function drawPixel(output, pos, r, g, b) {
     output[pos + 1] = g;
     output[pos + 2] = b;
     output[pos + 3] = 255;
+}
+
+function drawPixelRGB(output, pos, rgb) {
+    drawPixel(output, pos, rgb[0], rgb[1], rgb[2]);
 }
 
 function grayPixel(img, i) {
